@@ -1,0 +1,159 @@
+---
+title: "Akula-DATA606-Lab2"
+author: "Pavan Akula"
+date: "February 11, 2017"
+output: html_document
+---
+
+It is believed in the sports world specially in basketball *hot hand* exists. This lab does not refute or accept the *hot hand phenomenon*, instead it focus on understanding if events are dependent or independent, learning to simulate shooting streak and to compare simulation to actual data to understand if *hot hand* exists.
+
+Load data in *kobe* data frame.
+
+```{r , eval=TRUE}
+load("more/kobe.RData")
+head(kobe)
+```
+
+Q 1: What does a streak length of 1 mean, i.e. how many hits and misses are in a streak of 1? What about a streak length of 0?
+
+A: Hit streak length of 1 can be explained as follows 
+  
+a. It starts with beginning of a game when first shot is taken it can be *hit* or *miss*. If first shot is *hit* then second shot has to be *miss* in order to qualify for a streak.
+b. After a *miss* there has to be a *hit*.
+c. It order to become a hit streak, it has to end with *miss*.
+
+Above 3 events put together is considered as hit streak length of 1. In simple terms combination of *miss*, *hit* and *miss* can be explained as hit streak of length 1. There a 2 *misses* and 1 *hit*. in hit streak of 1.
+
+Hit streak of length *zero* means there are no *hits*. it is basically *miss*, *miss*, *miss* ..... In 
+
+Q 2: Describe the distribution of Kobe's streak lengths from the 2009 NBA finals. What was his typical streak length? How long was his longest streak of baskets?
+
+A: Following is visual analysis of distribution of Kobe's streak.
+
+a. Distribution suggests that it is right skewed and existence of hit streak of length 4. So, longest streak of baskets is 4.
+b. It is unimodal and mean is less than 1. This suggests that typical streak length of 0.
+c. There exists high percentage of miss streaks compared to streak of 1, 2, 3 or 4.
+d. Hit streak of 2 and 3 are about same.
+
+```{r , eval=TRUE}
+kobe_streak <- calc_streak(kobe$basket)
+kobe_streak
+
+```
+
+```{r , eval=TRUE}
+summary(kobe_streak)
+```
+
+```{r , eval=TRUE}
+barplot(table(kobe_streak))
+```
+
+Q 3: In your simulation of flipping the unfair coin 100 times, how many flips came up heads?
+
+A: 
+
+```{r , eval=TRUE}
+#Possible outcomes of coin flips
+outcomes <- c("heads", "tails")
+
+#Run summulation for 100 times. Coin is unfair because it has probability of 20% to land head and 80% to land tails. That mean if a coin is flipped 100 times it lands on heads 20 times and 80 times on tails. 
+sim_unfair_coin <- sample(outcomes, size = 100, replace = TRUE, prob = c(0.2, 0.8))
+
+# summarize the landings
+sumTable <- table(sim_unfair_coin)
+
+sumTable
+
+```
+Number of times heads came up `r sumTable[1]`.
+
+Q 4: What change needs to be made to the sample function so that it reflects a shooting percentage of 45%? Make this adjustment, then run a simulation to sample 133 shots. Assign the output of this simulation to a new object called  sim_basket.
+
+A: For any independent shooter chance of *hit* or *miss* is 50%. In this problem it is required to lower the shooting percentage to 45% and run the simulation of sample 133 shots. So the probability of *hit is 0.45* and *miss is .55*. sample size is 133.
+
+```{r , eval=TRUE}
+#Possible outcomes of shooting a basket
+outcomes <- c("hit", "miss")
+
+#Run summulation for 133 times. Probability of hit is 45% and miss is 55%. 
+sim_basket <- sample(outcomes, size = 133, replace = TRUE, prob = c(0.45, 0.55))
+
+# summarize the landings
+sumTable <- table(sim_basket)
+
+sumTable
+
+```
+Number of times *hit* is recorded `r sumTable[1]`, *miss* is recorded `r sumTable[2]` times.
+
+
+On your own
+
+Q 5: Describe the distribution of streak lengths. What is the typical streak length for this simulated independent shooter with a 45% shooting percentage? How long is the player's longest streak of baskets in 133 shots?
+
+A: 
+
+```{r , eval=TRUE}
+#Possible outcomes of shooting a basket
+outcomes <- c("H", "M")
+
+#Run summulation for 133 times. Probability of hit is 45% and miss is 55%. 
+sim_basket <- sample(outcomes, size = 133, replace = TRUE, prob = c(0.45, 0.55))
+
+ind_streak <- calc_streak(sim_basket)
+
+```
+
+```{r , eval=TRUE}
+summary(ind_streak)
+```
+
+```{r , eval=TRUE}
+barplot(table(ind_streak))
+```
+
+a. Independent shooter with 45% shooting percentage distribution suggests that it is right skewed and existence of hit streak of length `r summary(ind_streak)[6]`. So, longest streak of baskets is `r summary(ind_streak)[6]`.
+b. It is unimodal and mean is `r floor(summary(ind_streak)[4])`. This suggests that typical streak length of `r floor(summary(ind_streak)[4])`.
+
+
+Q 6: If you were to run the simulation of the independent shooter a second time, how would you expect its streak distribution to compare to the distribution from the question above? Exactly the same? Somewhat similar? Totally different? Explain your reasoning.
+
+A: According to the observations each time a simulation is run for independent shooter distribution changes. I have observed longest streak of baskets range from 3 to 11. Each simulation is totally different. 
+
+
+Q 7: How does Kobe Bryant's distribution of streak lengths compare to the distribution of streak lengths for the simulated shooter? Using this comparison, do you have evidence that the hot hand model fits Kobe's shooting patterns? Explain.
+
+A: To order to make valid comparison between Kobe and simulated shooter, shooting percentage needs an adjustment. It needs to be changed to *hit* or *miss* to 50%.
+
+
+```{r , eval=TRUE}
+#Possible outcomes of shooting a basket
+outcomes <- c("H", "M")
+
+#Run summulation for 133 times. Probability of hit or miss is 50%. 
+sim_basket <- sample(outcomes, size = 133, replace = TRUE)
+
+ind_streak <- calc_streak(sim_basket)
+
+```
+
+```{r , eval=TRUE}
+summary(ind_streak)
+
+summary(kobe_streak)
+```
+
+```{r , eval=TRUE}
+#Kobe strek bar plot
+barplot(table(kobe_streak))
+```
+
+```{r , eval=TRUE}
+#simulated shooter
+barplot(table(ind_streak))
+```
+
+Kobe Bryant's distribution of streak lengths are similar to simulated shooter. Graphs suggest each shot is independent. Outcome of first shot does have any impact on second shot. It is fair to say Kobe Bryant shooting pattern does not fit *hot hand* model.
+
+
